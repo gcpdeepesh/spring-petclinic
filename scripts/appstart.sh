@@ -1,2 +1,2 @@
 #!/bin/sh
-java -jar *.jar
+java -jar /opt/app/spring-petclinic-2.3.0.BUILD-SNAPSHOT.jar
