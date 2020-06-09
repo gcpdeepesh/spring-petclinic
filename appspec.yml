@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: *.jar
+  - source: spring-petclinic-2.3.0.BUILD-SNAPSHOT.jar
     destination: /opt/app/
 hooks:
 #  AfterInstall:
