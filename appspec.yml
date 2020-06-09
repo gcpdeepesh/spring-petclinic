@@ -1,8 +1,8 @@
 version: 0.0
 os: linux
-files:
-  - source: ./target/spring-petclinic-2.3.0.BUILD-SNAPSHOT.jar
-    destination: /opt/app/
+#files:
+#  - source: ./target/spring-petclinic-2.3.0.BUILD-SNAPSHOT.jar
+#    destination: /opt/app/
 #hooks:
 #  ApplicationStart: 
 #    - location: scripts/appstart.sh
