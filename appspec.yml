@@ -1,11 +1,14 @@
 version: 0.0
-os: linux
-#files:
-#  - source: ./target/*.jar
-#    destination: /usr/share/tomcat7/webapps/
+os: ubuntu
+files:
+  - source: *.jar
+    destination: /opt/app/
 hooks:
 #  AfterInstall:
 #    - location: codedeploy/restartTomcat.sh
 #      timeout: 300
 #      runas: root
-  ApplicationStart: java -jar *.jar
+  ApplicationStart: 
+    - location: scripts/appstart.sh
+      timeout: 300
+      runas: ubuntu
