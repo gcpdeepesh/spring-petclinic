@@ -1,5 +1,5 @@
 version: 0.0
-os: ubuntu
+os: linux
 files:
   - source: *.jar
     destination: /opt/app/
@@ -11,4 +11,4 @@ hooks:
   ApplicationStart: 
     - location: scripts/appstart.sh
       timeout: 300
-      runas: ubuntu
+      runas: root
