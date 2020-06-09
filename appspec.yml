@@ -1,13 +1,9 @@
 version: 0.0
 os: linux
 files:
-  - source: spring-petclinic-2.3.0.BUILD-SNAPSHOT.jar
+  - source: ./target/spring-petclinic-2.3.0.BUILD-SNAPSHOT.jar
     destination: /opt/app/
 hooks:
-#  AfterInstall:
-#    - location: codedeploy/restartTomcat.sh
-#      timeout: 300
-#      runas: root
   ApplicationStart: 
     - location: scripts/appstart.sh
       timeout: 300
