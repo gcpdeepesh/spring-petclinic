@@ -10,7 +10,7 @@ node {
   }
 
   stage('compile and package') {
-    def mvnHome = tool name:'M3', type: 'maven'
+    def mvnHome = tool name:'M2_HOME', type: 'maven'
     def mvnCMD = "${mvnHome}/bin/mvn"
     sh "${mvnCMD} clean package"
   }
