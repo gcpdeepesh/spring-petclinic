@@ -16,17 +16,17 @@ node {
   }
 
   stage('Build docker images') {
-    sh 'docker-compose build'
+    sh 'sudo docker image build . -t deepeshukla/spring-petclinic-container:0.1'
   }
 
   stage('login to dockerhub') {
     withCredentials([string(credentialsId: 'docker-pwd', variable: 'dockerhubpwd')]) {
-      sh 'docker login -u deepeshukla -p ${dockerhubpwd}'
+      sh 'sudo docker login -u deepeshukla -p ${dockerhubpwd}'
     }
   }
 
   stage('Push images to dockerhub') {
-    sh 'docker-compose push'
+    sh 'sudo docker push deepeshukla/spring-petclinic-container:0.1'
   }
 
   stage('deploy') {
