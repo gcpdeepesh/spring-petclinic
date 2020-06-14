@@ -6,13 +6,13 @@ node {
   stage('Test') {
     def mvnHome = tool name:'M2_HOME', type: 'maven'
     def mvnCMD = "${mvnHome}/bin/mvn"
-    sh "${mvnCMD} clean test"
+    sh "${mvnCMD} clean test -Dcheckstyle.skip"
   }
 
   stage('Compile and Package') {
     def mvnHome = tool name:'M2_HOME', type: 'maven'
     def mvnCMD = "${mvnHome}/bin/mvn"
-    sh "${mvnCMD} clean package"
+    sh "${mvnCMD} clean package -Dcheckstyle.skip"
   }
 
   stage('login to dockerhub') {
