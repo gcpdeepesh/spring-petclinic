@@ -1,0 +1,742 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "vpc4a83f130": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "172.31.0.0/16",
+        "InstanceTenancy": "default",
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true"
+      }
+    },
+    "subnetb9ae5ff4": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "172.31.16.0/20",
+        "AvailabilityZone": "ap-south-1c",
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        }
+      }
+    },
+    "subnetde4965f0": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "172.31.80.0/20",
+        "AvailabilityZone": "ap-south-1b",
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        }
+      }
+    },
+    "subnet65d0f602": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "172.31.0.0/20",
+        "AvailabilityZone": "ap-south-1a",
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        }
+      }
+    },
+    "subnet11790c2f": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "172.31.48.0/20",
+        "AvailabilityZone": "ap-south-1e",
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        }
+      }
+    },
+    "subnet835b408c": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "172.31.64.0/20",
+        "AvailabilityZone": "ap-south-1f",
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        }
+      }
+    },
+    "subnetc34a689f": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "172.31.32.0/20",
+        "AvailabilityZone": "ap-south-1d",
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        }
+      }
+    },
+    "igw4d8e2f36": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+      }
+    },
+    "doptabf7e8d0": {
+      "Type": "AWS::EC2::DHCPOptions",
+      "Properties": {
+        "DomainName": "ec2.internal",
+        "DomainNameServers": [
+          "AmazonProvidedDNS"
+        ]
+      }
+    },
+    "acl4508ad38": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        }
+      }
+    },
+    "rtbb72cd5c9": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        }
+      }
+    },
+    "asgcodeDeployProdASG": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          "ap-south-1a",
+          "ap-south-1b",
+          "ap-south-1c",
+          "ap-south-1d",
+          "ap-south-1e",
+          "ap-south-1f"
+        ],
+        "Cooldown": "300",
+        "DesiredCapacity": "1",
+        "HealthCheckGracePeriod": "300",
+        "HealthCheckType": "EC2",
+        "MaxSize": "3",
+        "MinSize": "1",
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "subnetb9ae5ff4"
+          },
+          {
+            "Ref": "subnetde4965f0"
+          },
+          {
+            "Ref": "subnet65d0f602"
+          },
+          {
+            "Ref": "subnet11790c2f"
+          },
+          {
+            "Ref": "subnet835b408c"
+          },
+          {
+            "Ref": "subnetc34a689f"
+          }
+        ],
+        "NotificationConfigurations": [
+          {
+            "TopicARN": "arn:aws:sns:ap-south-1:088926723310:Billing_Alarm_topic",
+            "NotificationTypes": [
+              "autoscaling:EC2_INSTANCE_LAUNCH",
+              "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+              "autoscaling:EC2_INSTANCE_TERMINATE",
+              "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Application",
+            "Value": "spring-petclinic PROD",
+            "PropagateAtLaunch": true
+          }
+        ],
+        "TerminationPolicies": [
+          "Default"
+        ]
+      }
+    },
+    "instancei0e3ad6210d238aca4": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "DisableApiTermination": "false",
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "IamInstanceProfile": "arn:aws:iam::088926723310:instance-profile/JenkinsAccess",
+        "ImageId": "ami-0662090f002ccc3df",
+        "InstanceType": "t2.medium",
+        "KeyName": "Office_pair",
+        "Monitoring": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "k8s Office client clone"
+          }
+        ],
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "DeviceIndex": 0,
+            "SubnetId": {
+              "Ref": "subnetde4965f0"
+            },
+            "PrivateIpAddresses": [
+              {
+                "PrivateIpAddress": "172.31.86.175",
+                "Primary": "true"
+              }
+            ],
+            "GroupSet": [
+              {
+                "Ref": "sgAutoScalingSecurityGroup1"
+              }
+            ],
+            "AssociatePublicIpAddress": "true"
+          }
+        ]
+      }
+    },
+    "instancei0f907a6bb27e5dd16": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "DisableApiTermination": "false",
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "IamInstanceProfile": "arn:aws:iam::088926723310:instance-profile/CodeDeployDemo-EC2-Instance-Profile",
+        "ImageId": "ami-039a49e70ea773ffc",
+        "InstanceType": "t2.micro",
+        "KeyName": "codedeploy machine pair",
+        "Monitoring": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "CodeDeploy machine"
+          }
+        ],
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "Description": "Primary network interface",
+            "DeviceIndex": 0,
+            "SubnetId": {
+              "Ref": "subnetde4965f0"
+            },
+            "PrivateIpAddresses": [
+              {
+                "PrivateIpAddress": "172.31.84.153",
+                "Primary": "true"
+              }
+            ],
+            "GroupSet": [
+              {
+                "Ref": "sgAutoScalingSecurityGroup1"
+              }
+            ],
+            "AssociatePublicIpAddress": "true"
+          }
+        ]
+      }
+    },
+    "s3cftemplatesjn4xmq3ds8fiuseast1": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "Private",
+        "VersioningConfiguration": {
+          "Status": "Suspended"
+        }
+      }
+    },
+    "s3codepipelineuseast1526955626114": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "Private",
+        "VersioningConfiguration": {
+          "Status": "Suspended"
+        }
+      }
+    },
+    "topicBillingAlarmtopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "DisplayName": "Billing_Alarm_topic",
+        "Subscription": [
+          {
+            "Endpoint": "deepeshshukla@mpsdc.gov.in",
+            "Protocol": "email"
+          },
+          {
+            "Endpoint": "deepesh.shukla@gmail.com",
+            "Protocol": "email"
+          },
+          {
+            "Endpoint": "deepeshshukla@mapit.gov.in",
+            "Protocol": "email"
+          }
+        ]
+      }
+    },
+    "sgAutoScalingSecurityGroup1": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "AutoScaling-Security-Group-1 (2020-04-21 14:39:33.702+05:30)",
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        }
+      }
+    },
+    "snspolicyBillingAlarmtopic": {
+      "Type": "AWS::SNS::TopicPolicy",
+      "Properties": {
+        "Topics": [
+          {
+            "Ref": "topicBillingAlarmtopic"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2008-10-17",
+          "Id": "__default_policy_ID",
+          "Statement": [
+            {
+              "Sid": "__default_statement_ID",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*"
+              },
+              "Action": [
+                "SNS:GetTopicAttributes",
+                "SNS:SetTopicAttributes",
+                "SNS:AddPermission",
+                "SNS:RemovePermission",
+                "SNS:DeleteTopic",
+                "SNS:Subscribe",
+                "SNS:ListSubscriptionsByTopic",
+                "SNS:Publish",
+                "SNS:Receive"
+              ],
+              "Resource": {
+                "Ref": "topicBillingAlarmtopic"
+              },
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceOwner": "088926723310"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "s3policycodepipelineuseast1526955626114": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "s3codepipelineuseast1526955626114"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Id": "SSEAndSSLPolicy",
+          "Statement": [
+            {
+              "Sid": "DenyUnEncryptedObjectUploads",
+              "Effect": "Deny",
+              "Principal": "*",
+              "Action": "s3:PutObject",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    "codepipeline-ap-south-",
+                    "1-526955626114/*"
+                  ]
+                ]
+              },
+              "Condition": {
+                "StringNotEquals": {
+                  "s3:x-amz-server-side-encryption": "aws:kms"
+                }
+              }
+            },
+            {
+              "Sid": "DenyInsecureConnections",
+              "Effect": "Deny",
+              "Principal": "*",
+              "Action": "s3:*",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    "codepipeline-ap-south-",
+                    "1-526955626114/*"
+                  ]
+                ]
+              },
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "scalingScaleGroupSize": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "PolicyType": "TargetTrackingScaling",
+        "StepAdjustments": [
+
+        ],
+        "AutoScalingGroupName": {
+          "Ref": "asgcodeDeployProdASG"
+        }
+      }
+    },
+    "alarmBillingAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ActionsEnabled": "true",
+        "AlarmDescription": "When Billing goes more than 2 Dollar",
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": "1",
+        "MetricName": "EstimatedCharges",
+        "Namespace": "AWS/Billing",
+        "Period": "21600",
+        "Statistic": "Maximum",
+        "Threshold": "2.0",
+        "AlarmActions": [
+          "arn:aws:sns:ap-south-1:088926723310:Billing_Alarm_topic"
+        ],
+        "Dimensions": [
+          {
+            "Name": "Currency",
+            "Value": "USD"
+          }
+        ]
+      }
+    },
+    "alarmTargetTrackingcodeDeployProdASGAlarmHigh11840ef16a96495b92f59e20a1094d5d": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ActionsEnabled": "true",
+        "AlarmDescription": "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy arn:aws:autoscaling:ap-south-1:088926723310:scalingPolicy:56129c26-e33d-44fd-8332-e0630b1309ba:autoScalingGroupName/codeDeploy Prod ASG:policyName/Scale Group Size.",
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": "3",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Period": "60",
+        "Statistic": "Average",
+        "Threshold": "70.0",
+        "AlarmActions": [
+          {
+            "Ref": "scalingScaleGroupSize"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": "codeDeploy Prod ASG"
+          }
+        ]
+      }
+    },
+    "alarmTargetTrackingcodeDeployProdASGAlarmLow6064bf7e2586428987f296fb96ca8d9c": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ActionsEnabled": "true",
+        "AlarmDescription": "DO NOT EDIT OR DELETE. For TargetTrackingScaling policy arn:aws:autoscaling:ap-south-1:088926723310:scalingPolicy:56129c26-e33d-44fd-8332-e0630b1309ba:autoScalingGroupName/codeDeploy Prod ASG:policyName/Scale Group Size.",
+        "ComparisonOperator": "LessThanThreshold",
+        "EvaluationPeriods": "15",
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Period": "60",
+        "Statistic": "Average",
+        "Threshold": "49.0",
+        "AlarmActions": [
+          {
+            "Ref": "scalingScaleGroupSize"
+          }
+        ],
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": "codeDeploy Prod ASG"
+          }
+        ]
+      }
+    },
+    "trailcodepipelinesourcetrail": {
+      "Type": "AWS::CloudTrail::Trail",
+      "Properties": {
+        "IncludeGlobalServiceEvents": true,
+        "IsLogging": "true",
+        "S3KeyPrefix": "cloud-trail-088926723310-6cd41afc-2a6b-4702-b1ed-ccb813e5f030",
+        "S3BucketName": "codepipeline-cloudtrail-placeholder-bucket-ap-south-1"
+      }
+    },
+    "acl1": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "true",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "acl4508ad38"
+        }
+      }
+    },
+    "acl2": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "acl4508ad38"
+        }
+      }
+    },
+    "subnetacl1": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "acl4508ad38"
+        },
+        "SubnetId": {
+          "Ref": "subnet11790c2f"
+        }
+      }
+    },
+    "subnetacl2": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "acl4508ad38"
+        },
+        "SubnetId": {
+          "Ref": "subnet835b408c"
+        }
+      }
+    },
+    "subnetacl3": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "acl4508ad38"
+        },
+        "SubnetId": {
+          "Ref": "subnet65d0f602"
+        }
+      }
+    },
+    "subnetacl4": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "acl4508ad38"
+        },
+        "SubnetId": {
+          "Ref": "subnetc34a689f"
+        }
+      }
+    },
+    "subnetacl5": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "acl4508ad38"
+        },
+        "SubnetId": {
+          "Ref": "subnetde4965f0"
+        }
+      }
+    },
+    "subnetacl6": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "acl4508ad38"
+        },
+        "SubnetId": {
+          "Ref": "subnetb9ae5ff4"
+        }
+      }
+    },
+    "gw1": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        },
+        "InternetGatewayId": {
+          "Ref": "igw4d8e2f36"
+        }
+      }
+    },
+    "route1": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "rtbb72cd5c9"
+        },
+        "GatewayId": {
+          "Ref": "igw4d8e2f36"
+        }
+      },
+      "DependsOn": "gw1"
+    },
+    "dchpassoc1": {
+      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpc4a83f130"
+        },
+        "DhcpOptionsId": {
+          "Ref": "doptabf7e8d0"
+        }
+      }
+    },
+    "ingress1": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "80",
+        "ToPort": "80",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress2": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "8080",
+        "ToPort": "8080",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress3": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "8083",
+        "ToPort": "8083",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress4": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "22",
+        "ToPort": "22",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress5": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "8082",
+        "ToPort": "8082",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress6": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "9090",
+        "ToPort": "9090",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress7": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "5666",
+        "ToPort": "5666",
+        "SourceSecurityGroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "SourceSecurityGroupOwnerId": "088926723310"
+      }
+    },
+    "ingress8": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "8090",
+        "ToPort": "8090",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress9": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "icmp",
+        "FromPort": "-1",
+        "ToPort": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress10": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "8081",
+        "ToPort": "8081",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "egress1": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgAutoScalingSecurityGroup1"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    }
+  },
+  "Description": "For creating basic infra for spring-petclinic app ; Talentica test"
+}

@@ -1,0 +1,69 @@
+#!/bin/sh -xe
+
+# Configure Client machine for spring-petclinic project
+
+# Ubuntu Server 16.04 LTS (HVM), SSD Volume Type - ami-039a49e70ea773ffc - us-east-1
+
+# Install Java
+apt-get update && apt-get -y upgrade
+add-apt-repository ppa:openjdk-r/ppa 
+apt-get install openjdk-8-jdk -y
+
+# Install Jenkins
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | apt-key add -
+sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+apt-get update -y
+apt-get install jenkins -y
+systemctl enable jenkins
+systemctl start jenkins
+
+# Install git
+### It's installed by default
+
+# Install maven
+cd /opt
+wget http://www-eu.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+tar -xvzf apache-maven-3.3.9-bin.tar.gz
+ln -s /opt/apache-maven-3.3.9 /opt/maven
+
+# Install aws cli
+apt install awscli -y
+
+# Install nagios
+apt install autoconf gcc libc6 make wget unzip libgd2-xpm-dev -y
+apt install apache2 php libapache2-mod-php7.0 -y
+systemctl enable apache2.service
+wget https://github.com/NagiosEnterprises/nagioscore/releases/download/nagios-4.4.2/nagios-4.4.2.tar.gz -O /opt/nagioscore.tar.gz
+cd /opt
+tar xf nagioscore.tar.gz
+cd /opt/nagios-4.4.2
+./configure --with-httpd-conf=/etc/apache2/sites-enabled
+make all
+make install-groups-users
+usermod -a -G nagios www-data
+make install
+make install-config
+make install-daemoninit
+make install-webconf
+systemctl restart apache2
+make install-commandmode
+# Run this after login to create a user account called nagiosadmin
+# htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+
+# Install nagios plugins
+apt install autoconf gcc libc6 libmcrypt-dev make libssl-dev wget bc gawk dc build-essential snmp libnet-snmp-perl gettext -y
+wget --no-check-certificate -O /opt/nagios-plugins.tar.gz https://github.com/nagios-plugins/nagios-plugins/archive/release-2.2.1.tar.gz
+cd /opt
+tar xf nagios-plugins.tar.gz
+cd /opt/nagios-plugins-release-2.2.1
+./tools/setup
+./configure
+make
+make install
+systemctl enable nagios
+systemctl start nagios
+
+# Configure nagios nrpe plugins once logged into
+
+# Configure .profile once looged into
+
