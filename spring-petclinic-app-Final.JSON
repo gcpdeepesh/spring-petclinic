@@ -1,0 +1,140 @@
+{
+    "pipeline": {
+        "artifactStore": {
+            "type": "S3",
+            "location": "codepipeline-us-east-1-526955626114"
+        },
+        "stages": [
+            {
+                "actions": [
+                    {
+                        "outputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "name": "Source",
+                        "inputArtifacts": [],
+                        "actionTypeId": {
+                            "category": "Source",
+                            "provider": "GitHub",
+                            "version": "1",
+                            "owner": "ThirdParty"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "Owner": "gcpdeepesh",
+                            "OAuthToken": "****",
+                            "Branch": "master",
+                            "PollForSourceChanges": "false",
+                            "Repo": "spring-petclinic"
+                        }
+                    }
+                ],
+                "name": "Source"
+            },
+            {
+                "actions": [
+                    {
+                        "outputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
+                        "name": "Build",
+                        "inputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "actionTypeId": {
+                            "category": "Build",
+                            "provider": "DeepeshJenkins6",
+                            "version": "1",
+                            "owner": "Custom"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ProjectName": "spring-petclinic-app"
+                        }
+                    }
+                ],
+                "name": "Build"
+            },
+            {
+                "actions": [
+                    {
+                        "outputArtifacts": [],
+                        "name": "Deploy",
+                        "inputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
+                        "actionTypeId": {
+                            "category": "Deploy",
+                            "provider": "CodeDeploy",
+                            "version": "1",
+                            "owner": "AWS"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "DeploymentGroupName": "Deepesh-DG-UAT",
+                            "ApplicationName": "spring-petclinic-app-uat"
+                        }
+                    }
+                ],
+                "name": "Deploy_in_UAT"
+            },
+            {
+                "actions": [
+                    {
+                        "outputArtifacts": [],
+                        "name": "Manual_Approval_By_TL",
+                        "inputArtifacts": [],
+                        "actionTypeId": {
+                            "category": "Approval",
+                            "provider": "Manual",
+                            "version": "1",
+                            "owner": "AWS"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ExternalEntityLink": "http://ec2-3-83-13-43.compute-1.amazonaws.com:8080/",
+                            "CustomData": "Please see UAT version and approve if its Alright to go for Production"
+                        }
+                    }
+                ],
+                "name": "Manual_Approval"
+            },
+            {
+                "actions": [
+                    {
+                        "outputArtifacts": [],
+                        "name": "Deploy_in_PROD",
+                        "inputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
+                        "actionTypeId": {
+                            "category": "Deploy",
+                            "provider": "CodeDeploy",
+                            "version": "1",
+                            "owner": "AWS"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "DeploymentGroupName": "Deepesh-DG-PROD",
+                            "ApplicationName": "spring-petclinic-app-prod"
+                        }
+                    }
+                ],
+                "name": "Deploy"
+            }
+        ],
+        "version": 5,
+        "name": "spring-petclinic-app-Final",
+        "roleArn": "arn:aws:iam::088926723310:role/service-role/AWSCodePipelineServiceRole-us-east-1-MyFirstPipeline"
+    }
+}
